@@ -48,7 +48,7 @@ server.post("/api/login", (req, res) => {
     });
 });
 
-server.get("/api/users", restricted, (req, res) => {
+server.get("/api/users", restricted, only("frodo"), (req, res) => {
   Users.find()
     .then(users => {
       res.json(users);
@@ -74,6 +74,16 @@ function restricted(req, res, next) {
         res.status(401).json({ message: "Invalid Credentials" });
       });
   }
+}
+
+function only(username) {
+  return function(req, res, next) {
+    if (username === req.headers.username) {
+      next();
+    } else {
+      res.status(403).json({ message: "Access denied" });
+    }
+  };
 }
 
 const port = process.env.PORT || 5000;
